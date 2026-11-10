@@ -1,0 +1,38 @@
+{
+  "name": "rustique-photobooth",
+  "productName": "Rustique Photobooth",
+  "version": "1.0.0",
+  "description": "Aesthetic A4 Photobooth App with Canon/Nikon WebUSB Tethering",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win"
+  },
+  "keywords": [
+    "photobooth",
+    "electron",
+    "a4",
+    "canon",
+    "nikon"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.2.0",
+    "electron-builder": "^24.9.0"
+  },
+  "build": {
+    "appId": "com.rustique.photobooth",
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  }
+}

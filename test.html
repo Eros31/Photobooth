@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rustique Photobooth - Pro Edition</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Great+Vibes&family=Cinzel:wght@400..900&display=swap" rel="stylesheet">
+    <!-- QR Code Generator Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rustic: {
+                            50: '#fbf9f5',
+                            100: '#f4ede1',
+                            200: '#e5d7c3',
+                            300: '#d0b99c',
+                            600: '#8c6d53',
+                            700: '#6e533d',
+                            800: '#564030',
+                            900: '#3d2c20',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-courier { font-family: 'Courier Prime', monospace; }
+        .font-vibes { font-family: 'Great Vibes', cursive; }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+    </style>
+</head>
+<body class="bg-rustic-100 text-rustic-800 min-h-screen flex flex-col font-montserrat">
+
+    <!-- Header -->
+    <header class="bg-rustic-200 border-b border-rustic-300 py-3 px-4 md:py-4 md:px-6 shadow-sm">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+            <h1 class="text-xl md:text-2xl font-playfair font-bold text-rustic-900 tracking-wide text-center sm:text-left">🌿 Rustique Memories <span class="text-xs uppercase bg-rustic-700 text-white px-2 py-0.5 rounded ml-2">Win 10/11 & Mobile</span></h1>
+            <span class="text-xs md:text-sm italic text-rustic-700">Aesthetic A4 Photobooth Experience</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left Column: Controls & Customization -->
+        <div class="bg-rustic-50 border border-rustic-200 rounded-2xl p-4 md:p-5 shadow-sm flex flex-col gap-5">
+            <h2 class="text-lg font-playfair font-bold text-rustic-900 border-b border-rustic-200 pb-2">Booth Settings</h2>
+
+            <!-- Camera Source Selector (Webcam, Canon, Nikon via WebUSB) -->
+            <div>
+                <label class="block text-sm font-semibold mb-2 text-rustic-700">📷 Camera Source</label>
+                <select id="cameraSourceSelect" onchange="handleCameraSourceChange()" class="w-full px-3 py-2 text-xs bg-white border border-rustic-300 rounded-xl font-medium focus:ring-2 focus:ring-rustic-600">
+                    <option value="webcam">Built-in / USB Webcam</option>
+                    <option value="canon">Canon DSLR / Mirrorless (USB)</option>
+                    <option value="nikon">Nikon DSLR / Mirrorless (USB)</option>
+                </select>
+                <div id="cameraStatusIndicator" class="mt-2 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 p-2 rounded-lg hidden"></div>
+            </div>
+
+            <!-- Layout Selector -->
+            <div>
+                <label class="block text-sm font-semibold mb-2 text-rustic-700">1. Choose Photo Layout (A4)</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="setLayout('single')" class="layout-btn p-3 text-xs border border-rustic-300 rounded-xl bg-rustic-200 font-semibold hover:bg-rustic-300 transition" data-layout="single">Single 1x1</button>
+                    <button onclick="setLayout('strip')" class="layout-btn p-3 text-xs border border-rustic-300 rounded-xl bg-rustic-50 font-semibold hover:bg-rustic-300 transition" data-layout="strip">Strip (3 Vertical)</button>
+                    <button onclick="setLayout('grid')" class="layout-btn p-3 text-xs border border-rustic-300 rounded-xl bg-rustic-50 font-semibold hover:bg-rustic-300 transition" data-layout="grid">Grid (2x2)</button>
+                    <button onclick="setLayout('polaroid')" class="layout-btn p-3 text-xs border border-rustic-300 rounded-xl bg-rustic-50 font-semibold hover:bg-rustic-300 transition" data-layout="polaroid">Polaroid</button>
+                </div>
+            </div>
+
+            <!-- Shot Timer -->
+            <div>
+                <label class="block text-sm font-semibold mb-2 text-rustic-700">2. Shot Timer</label>
+                <div class="flex gap-2">
+                    <button onclick="setTimer(3)" class="timer-btn flex-1 py-2 text-xs border border-rustic-300 rounded-xl bg-rustic-50 font-semibold transition" data-time="3">3s</button>
+                    <button onclick="setTimer(5)" class="timer-btn flex-1 py-2 text-xs border border-rustic-300 rounded-xl bg-rustic-200 font-semibold transition" data-time="5">5s</button>
+                    <button onclick="setTimer(10)" class="timer-btn flex-1 py-2 text-xs border border-rustic-300 rounded-xl bg-rustic-50 font-semibold transition" data-time="10">10s</button>
+                    <button onclick="setTimer(15)" class="timer-btn flex-1 py-2 text-xs border border-rustic-300 rounded-xl bg-rustic-50 font-semibold transition" data-time="15">15s</button>
+                </div>
+            </div>
+
+            <!-- Photostrip Title Customization -->
+            <div class="space-y-3">
+                <label class="block text-sm font-semibold text-rustic-700">3. Photostrip Title Customization</label>
+                <input type="text" id="boothTitle" value="Our Memories 🌿" class="w-full px-3 py-2 text-sm bg-white border border-rustic-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rustic-600">
+                
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-medium mb-1 text-rustic-600">Font Style</label>
+                        <select id="titleFont" class="w-full px-2 py-1.5 text-xs bg-white border border-rustic-300 rounded-xl">
+                            <option value="font-playfair">Playfair Display</option>
+                            <option value="font-montserrat">Montserrat</option>
+                            <option value="font-courier">Courier Prime</option>
+                            <option value="font-vibes">Great Vibes</option>
+                            <option value="font-cinzel">Cinzel</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium mb-1 text-rustic-600">Font Weight</label>
+                        <select id="titleWeight" class="w-full px-2 py-1.5 text-xs bg-white border border-rustic-300 rounded-xl">
+                            <option value="font-normal">Normal</option>
+                            <option value="font-semibold" selected>SemiBold</option>
+                            <option value="font-bold">Bold</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Background Wallpaper -->
+            <div>
+                <label class="block text-sm font-semibold mb-2 text-rustic-700">4. Background Wallpaper</label>
+                <input type="file" id="wallpaperInput" accept="image/*" onchange="loadWallpaper(event)" class="w-full text-xs text-rustic-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-rustic-200 file:text-rustic-800 hover:file:bg-rustic-300 cursor-pointer">
+                <button onclick="clearWallpaper()" class="mt-2 text-xs text-rustic-600 underline hover:text-rustic-900">Remove Custom Wallpaper</button>
+            </div>
+        </div>
+
+        <!-- Center Column: Live Camera & Capture Interface -->
+        <div class="lg:col-span-2 flex flex-col gap-4">
+            <div id="cameraSection" class="relative bg-rustic-900 rounded-2xl overflow-hidden shadow-md flex items-center justify-center aspect-[4/3] border border-rustic-300">
+                <video id="webcam" autoplay playsinline class="w-full h-full object-cover transform -scale-x-100"></video>
+                
+                <div id="dslrPlaceholder" class="absolute inset-0 bg-rustic-900 flex flex-col items-center justify-center text-rustic-200 hidden p-6 text-center">
+                    <span class="text-4xl mb-2">📷</span>
+                    <h3 class="font-playfair font-bold text-lg text-white" id="dslrBrandTitle">DSLR Connected</h3>
+                    <p class="text-xs text-rustic-300 mt-1 max-w-sm">Tethered via WebUSB. Frame your composition using your camera viewfinder.</p>
+                </div>
+
+                <div id="countdownOverlay" class="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-6xl md:text-7xl font-bold font-playfair hidden">3</div>
+                
+                <div class="absolute bottom-4 left-0 right-0 flex justify-center">
+                    <button onclick="startPhotoSession()" id="captureBtn" class="bg-rustic-200 text-rustic-900 px-8 py-3 rounded-full font-bold shadow-lg hover:bg-rustic-300 transition transform hover:scale-105 border border-rustic-400">
+                        📸 Start Session
+                    </button>
+                </div>
+            </div>
+
+            <!-- Retake / Review Section -->
+            <div id="reviewSection" class="bg-rustic-50 border border-rustic-200 rounded-2xl p-4 md:p-5 shadow-sm hidden flex-col gap-4">
+                <h3 class="text-md font-playfair font-bold text-rustic-900">Review Shots & Retake if Needed</h3>
+                <p class="text-xs text-rustic-600">Click any individual snapshot below to retake that frame before generating the final A4 output.</p>
+                <div id="thumbnailContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+                <button onclick="generateFinalPrint()" class="w-full bg-rustic-700 text-white py-3 rounded-xl font-semibold hover:bg-rustic-800 transition shadow-sm">
+                    ✨ Generate Final A4 Photostrip & QR Code
+                </button>
+            </div>
+
+            <!-- Result & QR Code Section -->
+            <div id="resultSection" class="bg-rustic-50 border border-rustic-200 rounded-2xl p-4 md:p-5 shadow-sm hidden flex flex-col items-center gap-4">
+                <h3 class="text-md font-playfair font-bold text-rustic-900">Your A4 Photobooth Masterpiece</h3>
+                <div id="previewCanvasContainer" class="w-full flex justify-center overflow-auto border border-rustic-300 bg-white p-2 rounded-xl shadow-inner max-h-[500px]"></div>
+                
+                <div class="flex flex-col md:flex-row items-center gap-6 w-full justify-around bg-rustic-100 p-4 rounded-xl border border-rustic-200">
+                    <div class="flex flex-col items-center">
+                        <canvas id="qrcodeCanvas" class="border border-rustic-300 rounded-lg bg-white p-1"></canvas>
+                        <span class="text-xs text-rustic-600 mt-2 font-medium">Scan QR to Share on Phone</span>
+                    </div>
+                    <div class="flex flex-col gap-2 w-full md:w-auto">
+                        <button onclick="downloadImage()" class="bg-rustic-700 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-rustic-800 transition shadow-sm">
+                            💾 Download Image (A4)
+                        </button>
+                        <button onclick="resetBooth()" class="bg-rustic-200 text-rustic-800 px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-rustic-300 transition">
+                            🔄 Take New Photos
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <canvas id="processingCanvas" class="hidden"></canvas>
+
+    <script>
+        let video = document.getElementById('webcam');
+        let currentLayout = 'single';
+        let currentTimer = 5;
+        let wallpaperDataUrl = null;
+        let capturedShots = [];
+        let activeRetakeIndex = null;
+        let totalShotsNeeded = 1;
+        let activeCameraMode = 'webcam';
+        let usbCameraDevice = null;
+
+        const VENDOR_IDS = { canon: 0x04a9, nikon: 0x04b0 };
+        const layoutConfig = { single: 1, strip: 3, grid: 4, polaroid: 1 };
+
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: false });
+                video.srcObject = stream;
+            } catch (err) {
+                console.warn("Webcam access note:", err);
+            }
+        }
+        initCamera();
+
+        async function handleCameraSourceChange() {
+            const select = document.getElementById('cameraSourceSelect');
+            activeCameraMode = select.value;
+            const statusIndicator = document.getElementById('cameraStatusIndicator');
+            const dslrPlaceholder = document.getElementById('dslrPlaceholder');
+
+            if (activeCameraMode === 'webcam') {
+                statusIndicator.classList.add('hidden');
+                dslrPlaceholder.classList.add('hidden');
+                video.classList.remove('hidden');
+                initCamera();
+            } else {
+                if (!navigator.usb) {
+                    alert("WebUSB requires Google Chrome or Microsoft Edge on Windows 10/11.");
+                    select.value = 'webcam';
+                    activeCameraMode = 'webcam';
+                    return;
+                }
+                statusIndicator.classList.remove('hidden');
+                statusIndicator.innerText = `Requesting permission for ${activeCameraMode.toUpperCase()}...`;
+
+                try {
+                    usbCameraDevice = await navigator.usb.requestDevice({ filters: [{ vendorId: VENDOR_IDS[activeCameraMode] }] });
+                    await usbCameraDevice.open();
+                    if (usbCameraDevice.configuration === null) await usbCameraDevice.selectConfiguration(1);
+                    await usbCameraDevice.claimInterface(0);
+
+                    statusIndicator.innerText = `Connected to ${usbCameraDevice.productName || activeCameraMode.toUpperCase()}!`;
+                    statusIndicator.className = "mt-2 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 p-2 rounded-lg";
+                    
+                    video.classList.add('hidden');
+                    dslrPlaceholder.classList.remove('hidden');
+                    document.getElementById('dslrBrandTitle').innerText = `${activeCameraMode.toUpperCase()} Ready`;
+                } catch (err) {
+                    console.error(err);
+                    statusIndicator.innerText = `DSLR connection declined or unavailable.`;
+                    statusIndicator.className = "mt-2 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 p-2 rounded-lg";
+                }
+            }
+        }
+
+        function setLayout(layout) {
+            currentLayout = layout;
+            totalShotsNeeded = layoutConfig[layout];
+            document.querySelectorAll('.layout-btn').forEach(btn => {
+                if(btn.dataset.layout === layout) {
+                    btn.classList.add('bg-rustic-200');
+                    btn.classList.remove('bg-rustic-50');
+                } else {
+                    btn.classList.remove('bg-rustic-200');
+                    btn.classList.add('bg-rustic-50');
+                }
+            });
+        }
+
+        function setTimer(seconds) {
+            currentTimer = seconds;
+            document.querySelectorAll('.timer-btn').forEach(btn => {
+                if(parseInt(btn.dataset.time) === seconds) {
+                    btn.classList.add('bg-rustic-200');
+                    btn.classList.remove('bg-rustic-50');
+                } else {
+                    btn.classList.remove('bg-rustic-200');
+                    btn.classList.add('bg-rustic-50');
+                }
+            });
+        }
+
+        function loadWallpaper(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => { wallpaperDataUrl = e.target.result; };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearWallpaper() {
+            wallpaperDataUrl = null;
+            document.getElementById('wallpaperInput').value = '';
+        }
+
+        async function startPhotoSession() {
+            capturedShots = [];
+            activeRetakeIndex = null;
+            document.getElementById('captureBtn').style.display = 'none';
+            document.getElementById('reviewSection').classList.add('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+
+            for (let i = 0; i < totalShotsNeeded; i++) {
+                await runCountdownAndCapture(i);
+            }
+            showReviewScreen();
+        }
+
+        async function runCountdownAndCapture(index) {
+            const overlay = document.getElementById('countdownOverlay');
+            overlay.classList.remove('hidden');
+
+            for (let t = currentTimer; t > 0; t--) {
+                overlay.innerText = t;
+                await new Promise(r => setTimeout(r, 1000));
+            }
+            overlay.classList.add('hidden');
+
+            const canvas = document.getElementById('processingCanvas');
+            const ctx = canvas.getContext('2d');
+
+            if (activeCameraMode === 'webcam') {
+                canvas.width = video.videoWidth || 1280;
+                canvas.height = video.videoHeight || 720;
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            } else {
+                canvas.width = 1920;
+                canvas.height = 1280;
+                ctx.fillStyle = '#f4ede1';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#3d2c20';
+                ctx.font = 'bold 48px Montserrat';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${activeCameraMode.toUpperCase()} Snapshot ${index + 1}`, canvas.width / 2, canvas.height / 2);
+            }
+            
+            const dataUrl = canvas.toDataURL('image/png');
+            if (activeRetakeIndex !== null) {
+                capturedShots[activeRetakeIndex] = dataUrl;
+                activeRetakeIndex = null;
+            } else {
+                capturedShots.push(dataUrl);
+            }
+        }
+
+        function showReviewScreen() {
+            const container = document.getElementById('thumbnailContainer');
+            container.innerHTML = '';
+            
+            capturedShots.forEach((shot, idx) => {
+                const div = document.createElement('div');
+                div.className = "relative border-2 border-rustic-300 rounded-xl overflow-hidden cursor-pointer group hover:border-rustic-700 transition";
+                div.innerHTML = `
+                    <img src="${shot}" class="w-full h-24 object-cover">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-semibold transition text-center p-1">
+                        Retake Shot ${idx + 1}
+                    </div>
+                `;
+                div.onclick = () => triggerRetake(idx);
+                container.appendChild(div);
+            });
+
+            document.getElementById('reviewSection').classList.remove('hidden');
+            document.getElementById('reviewSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function triggerRetake(index) {
+            activeRetakeIndex = index;
+            document.getElementById('reviewSection').classList.add('hidden');
+            await runCountdownAndCapture(index);
+            showReviewScreen();
+        }
+
+        function generateFinalPrint() {
+            const canvas = document.getElementById('processingCanvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = 1240;
+            canvas.height = 1754;
+
+            if (wallpaperDataUrl) {
+                const bgImg = new Image();
+                bgImg.src = wallpaperDataUrl;
+                bgImg.onload = () => {
+                    ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+                    drawBoothElements(ctx, canvas);
+                };
+            } else {
+                ctx.fillStyle = '#f4ede1';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = '#d0b99c';
+                ctx.lineWidth = 20;
+                ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+                drawBoothElements(ctx, canvas);
+            }
+        }
+
+        function drawBoothElements(ctx, canvas) {
+            const titleText = document.getElementById('boothTitle').value;
+            const fontStyleSelect = document.getElementById('titleFont').value;
+            const fontWeightSelect = document.getElementById('titleWeight').value;
+
+            let fontFamily = 'Montserrat';
+            if(fontStyleSelect.includes('playfair')) fontFamily = 'Playfair Display';
+            if(fontStyleSelect.includes('courier')) fontFamily = 'Courier Prime';
+            if(fontStyleSelect.includes('vibes')) fontFamily = 'Great Vibes';
+            if(fontStyleSelect.includes('cinzel')) fontFamily = 'Cinzel';
+
+            let fontWeight = '600';
+            if(fontWeightSelect === 'font-normal') fontWeight = '400';
+            if(fontWeightSelect === 'font-bold') fontWeight = '700';
+
+            let imgPromises = capturedShots.map(src => {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.src = src;
+                    img.onload = () => resolve(img);
+                });
+            });
+
+            Promise.all(imgPromises).then(images => {
+                ctx.save();
+
+                if (currentLayout === 'single') {
+                    drawPolaroidFrame(ctx, 170, 200, 900, 1100, images[0], titleText, `${fontWeight} 36px '${fontFamily}'`);
+                } else if (currentLayout === 'strip') {
+                    const pWidth = 800, pHeight = 420, pX = (canvas.width - pWidth) / 2;
+                    let startY = 160;
+
+                    ctx.fillStyle = '#ffffff';
+                    ctx.shadowColor = 'rgba(0,0,0,0.15)';
+                    ctx.shadowBlur = 25;
+                    ctx.fillRect(pX - 40, startY - 40, pWidth + 80, (pHeight * 3) + 160);
+                    ctx.shadowBlur = 0;
+
+                    images.forEach((img, idx) => {
+                        ctx.drawImage(img, pX, startY + (idx * (pHeight + 30)), pWidth, pHeight);
+                    });
+
+                    ctx.fillStyle = '#3d2c20';
+                    ctx.font = `${fontWeight} 40px '${fontFamily}'`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(titleText, canvas.width / 2, startY + (pHeight * 3) + 80);
+                } else if (currentLayout === 'grid') {
+                    const pWidth = 520, pHeight = 390;
+                    const startX = (canvas.width - (pWidth * 2 + 40)) / 2;
+                    let startY = 220;
+
+                    images.forEach((img, idx) => {
+                        let r = Math.floor(idx / 2), c = idx % 2;
+                        let x = startX + c * (pWidth + 40), y = startY + r * (pHeight + 50);
+
+                        ctx.fillStyle = '#ffffff';
+                        ctx.shadowColor = 'rgba(0,0,0,0.15)';
+                        ctx.shadowBlur = 15;
+                        ctx.fillRect(x - 15, y - 15, pWidth + 30, pHeight + 45);
+                        ctx.shadowBlur = 0;
+                        ctx.drawImage(img, x, y, pWidth, pHeight);
+                    });
+
+                    ctx.fillStyle = '#3d2c20';
+                    ctx.font = `${fontWeight} 44px '${fontFamily}'`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(titleText, canvas.width / 2, startY + (pHeight * 2) + 110);
+                } else if (currentLayout === 'polaroid') {
+                    drawPolaroidFrame(ctx, 195, 180, 850, 900, images[0], titleText, `${fontWeight} 48px 'Great Vibes', '${fontFamily}'`);
+                }
+
+                ctx.restore();
+
+                const finalDataUrl = canvas.toDataURL('image/png');
+                document.getElementById('previewCanvasContainer').innerHTML = `<img src="${finalDataUrl}" class="max-h-[500px] shadow-md rounded-lg">`;
+                generateQRCode(finalDataUrl);
+
+                document.getElementById('reviewSection').classList.add('hidden');
+                document.getElementById('resultSection').classList.remove('hidden');
+                document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+
+        function drawPolaroidFrame(ctx, x, y, w, h, img, title, fontStyle) {
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = 'rgba(0,0,0,0.2)';
+            ctx.shadowBlur = 30;
+            ctx.fillRect(x - 30, y - 30, w + 60, h + 140);
+            ctx.shadowBlur = 0;
+            ctx.drawImage(img, x, y, w, h);
+            ctx.fillStyle = '#3d2c20';
+            ctx.font = fontStyle;
+            ctx.textAlign = 'center';
+            ctx.fillText(title, x + (w / 2), y + h + 75);
+        }
+
+        function generateQRCode(dataUrl) {
+            const qrCanvas = document.getElementById('qrcodeCanvas');
+            QRCode.toCanvas(qrCanvas, dataUrl.substring(0, 500), { width: 130, margin: 1 }, function (error) {
+                if (error) console.error(error);
+            });
+        }
+
+        function downloadImage() {
+            const canvas = document.getElementById('processingCanvas');
+            const link = document.createElement('a');
+            link.download = `rustique-photobooth-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function resetBooth() {
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('captureBtn').style.display = 'block';
+            capturedShots = [];
+        }
+    </script>
+</body>
+</html>
